@@ -10,13 +10,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val put_on_clothes = findViewById<Button>(R.id.put_on_clothes)
+        val put_on_clothes = findViewById<Button>(R.id.upload_clothes_button)
 
         put_on_clothes.setOnClickListener {
-            val intent = Intent(this, ChangeClothes::class.java)
+            val intent = Intent(this, UploadClothes::class.java)
             startActivity(intent)
-
         }
+
 
     }
 }

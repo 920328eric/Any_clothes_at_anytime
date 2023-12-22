@@ -4,6 +4,7 @@ import android.content.AsyncQueryHandler
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -109,22 +110,42 @@ class ChangeClothes : AppCompatActivity() {
                 var canvas = Canvas(mutable)
                 var h = bitmap.height
                 var w = bitmap.width
-                var x = 0 //判斷座標y、x、相關的置信度
+
+                // 計算兩個肩膀關節點的中心點
+                val shoulderCenterX = (outputFeature0.get(5 * 3 + 1) + outputFeature0.get(6 * 3 + 1)) / 2
+                val shoulderCenterY = (outputFeature0.get(5 * 3) + outputFeature0.get(6 * 3)) / 2
+
+                // 載入衣服圖片
+                val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.long_sleeves1)
+
+                // 取得衣服圖片的寬度和高度
+                val clothingWidth = clothingBitmap.width
+                val clothingHeight = clothingBitmap.height
+
+                // 計算衣服圖片的中心點
+                val clothingCenterX = shoulderCenterX
+                val clothingCenterY = shoulderCenterY
+
+                // 計算衣服應該放置的位置
+                val clothingX = clothingCenterX - clothingWidth / 2
+                val clothingY = clothingCenterY - clothingHeight / 2
+
+                // 繪製衣服
+                canvas.drawBitmap(clothingBitmap, clothingX.toFloat(), clothingY.toFloat(), null)
 
                 // 迭代此輸出特徵並圍繞檢測到的關鍵點繪製圓圈
-                while(x <= 49){ // 這裡的 49 是根據模型輸出的特徵數據結構而來，代表一些檢測到的身體部位或關鍵點的數量
-                    if (outputFeature0.get(x+2) > 0.45){ // 特徵的信心度或置信度第 x+2 個元素的值是否大於 0.45
-
-                        canvas.drawCircle(outputFeature0.get(x+1)*w,outputFeature0.get(x)*h,10f,paint)
-                        // 特徵的信心度大於 0.45，使用 Canvas 在圖像上繪製一個圓圈。
-                        // 圓圈的位置由模型輸出的第 x+1 和第 x 元素確定，而圓的半徑是 10f（浮點數型別）， w 和 h 分別是圖像的寬度和高度
+                var x = 5 * 3 // 起始肩膀特徵點索引
+                val endShoulderIndex = 6
+                while (x <= endShoulderIndex * 3 + 2) {
+                    if (outputFeature0.get(x + 2) > 0.3) {
+                        canvas.drawCircle(outputFeature0.get(x + 1) * w, outputFeature0.get(x) * h, 10f, paint)
                     }
-                    x+=3
-                    // 每次迭代增加 x 的值，以便處理下一個特徵的相關數據，因為模型輸出的特徵數據以三個值為一組 (y座標, x座標, 置信度)
+                    x += 3
                 }
 
                 // 設置ImageView顯示繪製後的可變位圖
                 imageView.setImageBitmap(mutable)
+
             }
         }
     }

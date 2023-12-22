@@ -13,7 +13,7 @@ class MainActivity : AppCompatActivity() {
         val put_on_clothes = findViewById<Button>(R.id.upload_clothes_button)
 
         put_on_clothes.setOnClickListener {
-            val intent = Intent(this, UploadClothes::class.java)
+            val intent = Intent(this, ChangeClothes::class.java)
             startActivity(intent)
         }
 

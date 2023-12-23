@@ -22,11 +22,15 @@ import android.view.TextureView
 import android.widget.ImageView
 import androidx.core.content.getSystemService
 import com.example.anyclothesatanytime.ml.MoveNet
+import org.checkerframework.checker.units.qual.min
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
+import java.util.Collections.max
+import kotlin.math.max
+import kotlin.math.min
 
 class ChangeClothes : AppCompatActivity() {
     // 創建畫筆對象，用於繪製圓圈
@@ -111,42 +115,153 @@ class ChangeClothes : AppCompatActivity() {
                 var h = bitmap.height
                 var w = bitmap.width
 
+
+                // 載入衣服、褲子
+                val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.short_sleeves)
+                val pantsBitmap : Bitmap = BitmapFactory.decodeResource(resources,R.drawable.pants1)
+
+
+        //載入衣服
+                var x = 5 * 3 // 起始肩膀特徵點索引
+                val endShoulderIndex = 6
+
+                // 初始化兩肩膀的中心點
+                var shoulderCenterX = 0f
+                var shoulderCenterY = 0f
+
+                while (x <= endShoulderIndex * 3 + 2) {
+                    if (outputFeature0.get(x + 2) > 0.3) {
+                        canvas.drawCircle(outputFeature0.get(x + 1) * w, outputFeature0.get(x) * h, 10f, paint)
+
+                        // 更新兩肩膀的中心點
+                        shoulderCenterX += outputFeature0.get(x + 1) * w
+                        shoulderCenterY += outputFeature0.get(x) * h
+                    }
+                    x += 3
+                }
+
                 // 計算兩個肩膀關節點的中心點
-                val shoulderCenterX = (outputFeature0.get(5 * 3 + 1) + outputFeature0.get(6 * 3 + 1)) / 2
-                val shoulderCenterY = (outputFeature0.get(5 * 3) + outputFeature0.get(6 * 3)) / 2
+                shoulderCenterX /= 2
+                shoulderCenterY /= 2
 
-                // 載入衣服圖片
-                val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.long_sleeves1)
+                // 計算肩膀寬度
+                val shoulderWidth = shoulderCenterX * 2
 
-                // 取得衣服圖片的寬度和高度
-                val clothingWidth = clothingBitmap.width
-                val clothingHeight = clothingBitmap.height
+                // 計算縮放比例
+                val scaleRatio = shoulderWidth / getNonTransparentWidth(clothingBitmap)
 
-                // 計算衣服圖片的中心點
+                // 計算縮小後的寬度和高度
+                val scaledWidth = (getNonTransparentWidth(clothingBitmap) * scaleRatio).toInt()
+                val scaledHeight = (getNonTransparentHeight(clothingBitmap) * scaleRatio).toInt()
+
+                // 進行等比例縮小
+                val scaledClothingBitmap = Bitmap.createScaledBitmap(clothingBitmap, scaledWidth, scaledHeight, true)
+
+                // 計算衣服圖片的中心點，使其與兩邊肩膀的中心點保持同步
                 val clothingCenterX = shoulderCenterX
                 val clothingCenterY = shoulderCenterY
 
                 // 計算衣服應該放置的位置
-                val clothingX = clothingCenterX - clothingWidth / 2
-                val clothingY = clothingCenterY - clothingHeight / 2
+                val clothingX = clothingCenterX - scaledWidth / 2
+                val clothingY = clothingCenterY - scaledHeight / 2 +220
 
                 // 繪製衣服
-                canvas.drawBitmap(clothingBitmap, clothingX.toFloat(), clothingY.toFloat(), null)
+                canvas.drawBitmap(scaledClothingBitmap, clothingX.toFloat(), clothingY.toFloat(), null)
 
-                // 迭代此輸出特徵並圍繞檢測到的關鍵點繪製圓圈
-                var x = 5 * 3 // 起始肩膀特徵點索引
-                val endShoulderIndex = 6
-                while (x <= endShoulderIndex * 3 + 2) {
-                    if (outputFeature0.get(x + 2) > 0.3) {
-                        canvas.drawCircle(outputFeature0.get(x + 1) * w, outputFeature0.get(x) * h, 10f, paint)
+
+        //載入褲子
+                var hipx = 11 * 3 // 起始髖特徵點索引
+                val endhipIndex = 12
+
+                // 初始化兩髖的中心點
+                var hipCenterX = 0f
+                var hipCenterY = 0f
+
+                while (hipx <= endhipIndex * 3 + 2) {
+                    if (outputFeature0.get(hipx + 2) > 0.3) {
+                        canvas.drawCircle(outputFeature0.get(hipx + 1) * w, outputFeature0.get(hipx) * h, 10f, paint)
+
+                        // 更新兩髖的中心點
+                        hipCenterX += outputFeature0.get(hipx + 1) * w
+                        hipCenterY += outputFeature0.get(hipx) * h
                     }
-                    x += 3
+                    hipx += 3
                 }
+
+                // 計算兩個髖關節點的中心點
+                hipCenterX /= 2
+                hipCenterY /= 2
+
+                // 計算兩髖寬度
+                val hipWidth = hipCenterX * 2
+
+                // 計算縮放比例
+                val hipscaleRatio = hipWidth / getNonTransparentWidth(pantsBitmap)
+
+                // 計算縮小後的寬度和高度
+                val hipscaledWidth = (getNonTransparentWidth(pantsBitmap) * hipscaleRatio).toInt()
+                val hipscaledHeight = (getNonTransparentHeight(pantsBitmap) * hipscaleRatio).toInt()
+
+                // 進行等比例縮小
+                val hipscaledpantsBitmap = Bitmap.createScaledBitmap(pantsBitmap, hipscaledWidth, hipscaledHeight, true)
+
+                // 計算衣服圖片的中心點，使其與兩邊髖的中心點保持同步
+                val hippantsCenterX = hipCenterX
+                val hippantsCenterY = hipCenterY
+
+                // 計算褲子應該放置的位置
+                val pantsX = hippantsCenterX - hipscaledWidth / 2
+                val pantsY = hippantsCenterY - hipscaledHeight / 2 +220
+
+                // 繪製褲子
+                canvas.drawBitmap(hipscaledpantsBitmap, pantsX.toFloat(), pantsY.toFloat(), null)
+
+
 
                 // 設置ImageView顯示繪製後的可變位圖
                 imageView.setImageBitmap(mutable)
 
             }
+            // 函數來獲取非透明部分的寬度
+            fun getNonTransparentWidth(bitmap: Bitmap): Int {
+                val pixels = IntArray(bitmap.width * bitmap.height)
+                bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+                var minX = bitmap.width
+                var maxX = 0
+
+                for (x in 0 until bitmap.width) {
+                    for (y in 0 until bitmap.height) {
+                        if (pixels[x + y * bitmap.width] != 0) {
+                            minX = min(minX, x)
+                            maxX = max(maxX, x)
+                        }
+                    }
+                }
+
+                return maxX - minX + 1
+            }
+
+            // 函數來獲取非透明部分的高度
+            fun getNonTransparentHeight(bitmap: Bitmap): Int {
+                val pixels = IntArray(bitmap.width * bitmap.height)
+                bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+                var minY = bitmap.height
+                var maxY = 0
+
+                for (x in 0 until bitmap.width) {
+                    for (y in 0 until bitmap.height) {
+                        if (pixels[x + y * bitmap.width] != 0) {
+                            minY = min(minY, y)
+                            maxY = max(maxY, y)
+                        }
+                    }
+                }
+
+                return maxY - minY + 1
+            }
+
         }
     }
 
@@ -207,4 +322,3 @@ class ChangeClothes : AppCompatActivity() {
         if (grantResults[0] != PackageManager.PERMISSION_GRANTED)get_permissions()
     }
 }
-

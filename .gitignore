@@ -13,3 +13,5 @@
 .externalNativeBuild
 .cxx
 local.properties
+# Ignore Android configuration files that needlessly include sensitive information
+**/google-services.json

@@ -4,27 +4,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#CCCCCC"
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/upload_clothes_button"
-        android:text="上傳衣服圖片"
+        android:id="@+id/try_clothes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="試衣間"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.423"
+        app:layout_constraintVertical_bias="0.689"
         tools:layout_editor_absoluteX="0dp" />
 
     <Button
-        android:id="@+id/upload_jeans_button"
-        android:text="上傳褲子圖片"
+        android:id="@+id/Wardrobe_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="衣櫃"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.6"
+        app:layout_constraintVertical_bias="0.869"
         tools:layout_editor_absoluteX="0dp" />
+
+    <ImageView
+        android:id="@+id/logo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/try_clothes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.783"
+        app:srcCompat="@drawable/app_logo" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

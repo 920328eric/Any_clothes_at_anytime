@@ -7,6 +7,8 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
     <application
         android:allowBackup="true"
@@ -19,8 +21,9 @@
         android:theme="@style/Theme.Anyclothesatanytime"
         tools:targetApi="31">
         <activity
-            android:name=".UploadClothes"
+            android:name=".Wardrobe"
             android:exported="false" />
+        <activity android:name="com.example.anyclothesatanytime.UploadClothes" />
         <activity
             android:name=".ChangeClothes"
             android:exported="false" />

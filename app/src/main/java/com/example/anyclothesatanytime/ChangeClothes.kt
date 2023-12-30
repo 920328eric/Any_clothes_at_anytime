@@ -21,10 +21,14 @@ import android.text.Html
 import android.util.Log
 import android.view.Surface
 import android.view.TextureView
+import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.example.anyclothesatanytime.ml.MoveNet
+import com.google.android.material.snackbar.Snackbar
 import org.checkerframework.checker.units.qual.min
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.image.ImageProcessor
@@ -164,6 +168,7 @@ class ChangeClothes : AppCompatActivity() {
 
                 if(shoulderCenterX != 0f && shoulderCenterY != 0f && hipCenterX != 0f && hipCenterY != 0f)
                 {
+
                 //載入衣服
 
                     // 計算兩個肩膀關節點的中心點
@@ -229,8 +234,8 @@ class ChangeClothes : AppCompatActivity() {
                 else
                 {
 
-                    val message = "系統正在進行推斷<br/>請讓相機照到所有肩膀和髖部"
-                    Toast.makeText(textureView.context, Html.fromHtml("<center>$message</center>"), Toast.LENGTH_SHORT).show()
+                    val message = "系統正在進行推斷\n請讓相機照到所有肩膀和髖部"
+                    Toast.makeText(textureView.context, message, Toast.LENGTH_SHORT).show()
 
                 }
 

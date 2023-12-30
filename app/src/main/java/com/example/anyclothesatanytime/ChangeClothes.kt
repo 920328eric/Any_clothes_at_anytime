@@ -17,9 +17,12 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
 import android.provider.ContactsContract.CommonDataKinds.Im
+import android.text.Html
+import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.getSystemService
 import com.example.anyclothesatanytime.ml.MoveNet
 import org.checkerframework.checker.units.qual.min
@@ -140,35 +143,6 @@ class ChangeClothes : AppCompatActivity() {
                     x += 3
                 }
 
-                // 計算兩個肩膀關節點的中心點
-                shoulderCenterX /= 2
-                shoulderCenterY /= 2
-
-                // 計算肩膀寬度
-                val shoulderWidth = shoulderCenterX * 2
-
-                // 計算縮放比例
-                val scaleRatio = shoulderWidth / getNonTransparentWidth(clothingBitmap)
-
-                // 計算縮小後的寬度和高度
-                val scaledWidth = (getNonTransparentWidth(clothingBitmap) * scaleRatio).toInt()
-                val scaledHeight = (getNonTransparentHeight(clothingBitmap) * scaleRatio).toInt()
-
-                // 進行等比例縮小
-                val scaledClothingBitmap = Bitmap.createScaledBitmap(clothingBitmap, scaledWidth, scaledHeight, true)
-
-                // 計算衣服圖片的中心點，使其與兩邊肩膀的中心點保持同步
-                val clothingCenterX = shoulderCenterX
-                val clothingCenterY = shoulderCenterY
-
-                // 計算衣服應該放置的位置
-                val clothingX = clothingCenterX - scaledWidth / 2
-                val clothingY = clothingCenterY - scaledHeight / 2 +220
-
-                // 繪製衣服
-                canvas.drawBitmap(scaledClothingBitmap, clothingX.toFloat(), clothingY.toFloat(), null)
-
-
         //載入褲子
                 var hipx = 11 * 3 // 起始髖特徵點索引
                 val endhipIndex = 12
@@ -188,34 +162,77 @@ class ChangeClothes : AppCompatActivity() {
                     hipx += 3
                 }
 
-                // 計算兩個髖關節點的中心點
-                hipCenterX /= 2
-                hipCenterY /= 2
+                if(shoulderCenterX != 0f && shoulderCenterY != 0f && hipCenterX != 0f && hipCenterY != 0f)
+                {
+                //載入衣服
 
-                // 計算兩髖寬度
-                val hipWidth = hipCenterX * 2
+                    // 計算兩個肩膀關節點的中心點
+                    shoulderCenterX /= 2
+                    shoulderCenterY /= 2
 
-                // 計算縮放比例
-                val hipscaleRatio = hipWidth / getNonTransparentWidth(pantsBitmap)
+                    // 計算肩膀寬度
+                    val shoulderWidth = shoulderCenterX * 2
 
-                // 計算縮小後的寬度和高度
-                val hipscaledWidth = (getNonTransparentWidth(pantsBitmap) * hipscaleRatio).toInt()
-                val hipscaledHeight = (getNonTransparentHeight(pantsBitmap) * hipscaleRatio).toInt()
+                    // 計算縮放比例
+                    val scaleRatio = shoulderWidth / getNonTransparentWidth(clothingBitmap)
 
-                // 進行等比例縮小
-                val hipscaledpantsBitmap = Bitmap.createScaledBitmap(pantsBitmap, hipscaledWidth, hipscaledHeight, true)
+                    // 計算縮小後的寬度和高度
+                    val scaledWidth = (getNonTransparentWidth(clothingBitmap) * scaleRatio).toInt()
+                    val scaledHeight = (getNonTransparentHeight(clothingBitmap) * scaleRatio).toInt()
 
-                // 計算衣服圖片的中心點，使其與兩邊髖的中心點保持同步
-                val hippantsCenterX = hipCenterX
-                val hippantsCenterY = hipCenterY
+                    // 進行等比例縮小
+                    val scaledClothingBitmap = Bitmap.createScaledBitmap(clothingBitmap, scaledWidth, scaledHeight, true)
 
-                // 計算褲子應該放置的位置
-                val pantsX = hippantsCenterX - hipscaledWidth / 2
-                val pantsY = hippantsCenterY - hipscaledHeight / 2 +220
+                    // 計算衣服圖片的中心點，使其與兩邊肩膀的中心點保持同步
+                    val clothingCenterX = shoulderCenterX
+                    val clothingCenterY = shoulderCenterY
 
-                // 繪製褲子
-                canvas.drawBitmap(hipscaledpantsBitmap, pantsX.toFloat(), pantsY.toFloat(), null)
+                    // 計算衣服應該放置的位置
+                    val clothingX = clothingCenterX - scaledWidth / 2
+                    val clothingY = clothingCenterY - scaledHeight / 2 +220
 
+                    // 繪製衣服
+                    canvas.drawBitmap(scaledClothingBitmap, clothingX.toFloat(), clothingY.toFloat(), null)
+
+
+                //載入褲子
+
+
+                    // 計算兩個髖關節點的中心點
+                    hipCenterX /= 2
+                    hipCenterY /= 2
+
+                    // 計算兩髖寬度
+                    val hipWidth = hipCenterX * 2
+
+                    // 計算縮放比例
+                    val hipscaleRatio = hipWidth / getNonTransparentWidth(pantsBitmap)
+
+                    // 計算縮小後的寬度和高度
+                    val hipscaledWidth = (getNonTransparentWidth(pantsBitmap) * hipscaleRatio).toInt()
+                    val hipscaledHeight = (getNonTransparentHeight(pantsBitmap) * hipscaleRatio).toInt()
+
+                    // 進行等比例縮小
+                    val hipscaledpantsBitmap = Bitmap.createScaledBitmap(pantsBitmap, hipscaledWidth, hipscaledHeight, true)
+
+                    // 計算衣服圖片的中心點，使其與兩邊髖的中心點保持同步
+                    val hippantsCenterX = hipCenterX
+                    val hippantsCenterY = hipCenterY
+
+                    // 計算褲子應該放置的位置
+                    val pantsX = hippantsCenterX - hipscaledWidth / 2
+                    val pantsY = hippantsCenterY - hipscaledHeight / 2 +220
+
+                    // 繪製褲子
+                    canvas.drawBitmap(hipscaledpantsBitmap, pantsX.toFloat(), pantsY.toFloat(), null)
+                }
+                else
+                {
+
+                    val message = "系統正在進行推斷<br/>請讓相機照到所有肩膀和髖部"
+                    Toast.makeText(textureView.context, Html.fromHtml("<center>$message</center>"), Toast.LENGTH_SHORT).show()
+
+                }
 
 
                 // 設置ImageView顯示繪製後的可變位圖

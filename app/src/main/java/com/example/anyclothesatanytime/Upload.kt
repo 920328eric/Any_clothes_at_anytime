@@ -1,5 +1,6 @@
 package com.example.anyclothesatanytime
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -11,29 +12,44 @@ import android.widget.ImageView
 
 
 
-class UploadClothes : AppCompatActivity() {
+class Upload : AppCompatActivity() {
 
     var selectedImageUri: Uri? = null
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_upload_clothes)
 
-        val UploadClothesButton = findViewById<Button>(R.id.upload_clothes)
-        val ChooseClothes = findViewById<Button>(R.id.choose_clothes)
+        // 接收從Wardrobe活動傳遞的資料
+        val buttonChooseText = intent.getStringExtra("button_choose")
+        val buttonUploadText = intent.getStringExtra("button_upload")
+
+
+        val Upload= findViewById<Button>(R.id.upload)
+        val Choose = findViewById<Button>(R.id.choose)
         var imageView = findViewById<ImageView>(R.id.image_view)
 
+        // 使用接收到的資料設置 choose 和 upload 按鈕的文本
+        Choose.text = buttonChooseText
+        Upload.text = buttonUploadText
+
         // 上傳衣服圖片
-        UploadClothesButton.setOnClickListener {
+        Upload.setOnClickListener {
             val firebaseStorageManager = FirebaseStorageManager()
             if (selectedImageUri != null) {
-                firebaseStorageManager.uploadImage(this, selectedImageUri!!)
+                if(Choose.text == "選擇衣服圖片"){
+                    firebaseStorageManager.uploadImage(this, selectedImageUri!!, "clothes")
+                }
 
+                if(Choose.text == "選擇褲子圖片"){
+                    firebaseStorageManager.uploadImage(this, selectedImageUri!!, "pants")
+                }
             }
         }
 
         // 選取圖片
-        ChooseClothes.setOnClickListener {
+        Choose.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
             startActivityForResult(intent, 1)

@@ -49,20 +49,35 @@
         android:id="@+id/clothes_recyclerView"
         android:layout_width="409dp"
         android:layout_height="258dp"
+        app:layout_constraintBottom_toTopOf="@+id/upload_pants_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteY="142dp" />
+        app:layout_constraintTop_toBottomOf="@+id/upload_clothes_button"
+        tools:ignore="MissingConstraints" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/pants_recyclerView"
         android:layout_width="409dp"
-        android:layout_height="268dp"
+        android:layout_height="258dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/clothes_recyclerView"
+        app:layout_constraintTop_toBottomOf="@+id/upload_pants_button"
         app:layout_constraintVertical_bias="0.873"
         tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="1dp" />
+
+    <ImageButton
+        android:id="@+id/reload"
+        android:layout_width="60dp"
+        android:layout_height="68dp"
+        android:background="#CCCCCC"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@+id/upload_clothes_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.862"
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.24"
+        app:srcCompat="@drawable/reload" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

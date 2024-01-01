@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
 
         // 顯示 Snackbar 提示訊息
-        val message = "請自行調整相機角度\n找到最佳衣服和褲子的位置"
+        val message = "使用試衣間請自行調整相機距離\n找到最佳衣服和褲子的位置"
         val snackbar = Snackbar.make(
             findViewById(android.R.id.content),
             message,

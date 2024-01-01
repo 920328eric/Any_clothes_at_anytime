@@ -1,5 +1,6 @@
 package com.example.anyclothesatanytime
 
+import android.animation.ValueAnimator
 import android.content.AsyncQueryHandler
 import android.content.Context
 import android.content.pm.PackageManager
@@ -8,14 +9,17 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.PorterDuff
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper
 import android.provider.ContactsContract.CommonDataKinds.Im
 import android.text.Html
 import android.util.Log
@@ -36,12 +40,18 @@ import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
 import java.util.Collections.max
+import java.util.Timer
+import java.util.TimerTask
 import kotlin.math.max
 import kotlin.math.min
 
 class ChangeClothes : AppCompatActivity() {
     // 創建畫筆對象，用於繪製圓圈
     val paint : Paint = Paint()
+    var rsframe = 0
+    var rpframe = 0
+    var lsframe = 0
+    var lpframe = 0
 
     lateinit var imageProcessor : ImageProcessor
     lateinit var model : MoveNet
@@ -55,6 +65,9 @@ class ChangeClothes : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_clothes)
+
+        var rotationAngle = 0f
+        val rotationSpeed = 5f // 調整旋轉速度
 
         // 獲取相機權限
         get_permissions()
@@ -125,10 +138,9 @@ class ChangeClothes : AppCompatActivity() {
 
                 // 載入衣服、褲子
                 val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.short_sleeves)
-                val pantsBitmap : Bitmap = BitmapFactory.decodeResource(resources,R.drawable.pants1)
+                val pantsBitmap : Bitmap = BitmapFactory.decodeResource(resources,R.drawable.pants)
 
-
-        //載入衣服
+        //兩肩特徵點
                 var x = 5 * 3 // 起始肩膀特徵點索引
                 val endShoulderIndex = 6
 
@@ -138,7 +150,7 @@ class ChangeClothes : AppCompatActivity() {
 
                 while (x <= endShoulderIndex * 3 + 2) {
                     if (outputFeature0.get(x + 2) > 0.3) {
-                        canvas.drawCircle(outputFeature0.get(x + 1) * w, outputFeature0.get(x) * h, 10f, paint)
+                        //canvas.drawCircle(outputFeature0.get(x + 1) * w, outputFeature0.get(x) * h, 10f, paint)
 
                         // 更新兩肩膀的中心點
                         shoulderCenterX += outputFeature0.get(x + 1) * w
@@ -147,7 +159,7 @@ class ChangeClothes : AppCompatActivity() {
                     x += 3
                 }
 
-        //載入褲子
+        //兩髖特徵點
                 var hipx = 11 * 3 // 起始髖特徵點索引
                 val endhipIndex = 12
 
@@ -157,7 +169,7 @@ class ChangeClothes : AppCompatActivity() {
 
                 while (hipx <= endhipIndex * 3 + 2) {
                     if (outputFeature0.get(hipx + 2) > 0.3) {
-                        canvas.drawCircle(outputFeature0.get(hipx + 1) * w, outputFeature0.get(hipx) * h, 10f, paint)
+                        //canvas.drawCircle(outputFeature0.get(hipx + 1) * w, outputFeature0.get(hipx) * h, 10f, paint)
 
                         // 更新兩髖的中心點
                         hipCenterX += outputFeature0.get(hipx + 1) * w
@@ -166,6 +178,7 @@ class ChangeClothes : AppCompatActivity() {
                     hipx += 3
                 }
 
+        //判斷有沒有照到人
                 if(shoulderCenterX != 0f && shoulderCenterY != 0f && hipCenterX != 0f && hipCenterY != 0f)
                 {
 
@@ -233,10 +246,164 @@ class ChangeClothes : AppCompatActivity() {
                 }
                 else
                 {
-
                     val message = "系統正在進行推斷\n請讓相機照到所有肩膀和髖部"
                     Toast.makeText(textureView.context, message, Toast.LENGTH_SHORT).show()
+                }
 
+
+    // 載入選衣服、褲子按鈕、加載動畫
+                val shirtRightButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.rightbutton)
+                val pantsRightButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.rightbutton)
+                val shirtLeftButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.leftbutton)
+                val pantsLeftButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.leftbutton)
+                val three: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading1)
+                val two: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading2)
+                val one: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading3)
+
+                canvas.drawBitmap(shirtRightButton, 550.0f, 40.0f, null)
+                canvas.drawBitmap(pantsRightButton, 550.0f, 700f, null)
+                canvas.drawBitmap(shirtLeftButton, 0.0f, 40.0f, null)
+                canvas.drawBitmap(pantsLeftButton, 0.0f, 700.0f, null)
+
+            // 起始右手特徵點
+                var rhandx = 9 * 3
+                val endrhandxIndex = 9
+
+                //右手座標
+                var rhandX = 0f
+                var rhandY = 0f
+
+                while (rhandx <= endrhandxIndex * 3 + 2) {
+                    if (outputFeature0.get(rhandx + 2) > 0.3) {
+                        //canvas.drawCircle(outputFeature0.get(rhandx + 1) * w, outputFeature0.get(rhandx) * h, 10f, paint)
+
+                        rhandX = outputFeature0.get(rhandx + 1) * w
+                        rhandY = outputFeature0.get(rhandx) * h
+
+                    }
+                    rhandx += 3
+                }
+
+            // 起始左手特徵點
+                var lhandx = 10 * 3
+                val endlhandxIndex = 10
+
+                //左手座標
+                var lhandX = 0f
+                var lhandY = 0f
+
+                while (lhandx <= endlhandxIndex * 3 + 2) {
+                    if (outputFeature0.get(lhandx + 2) > 0.3) {
+                        //canvas.drawCircle(outputFeature0.get(lhandx + 1) * w, outputFeature0.get(lhandx) * h, 10f, paint)
+
+                        lhandX = outputFeature0.get(lhandx + 1) * w
+                        lhandY = outputFeature0.get(lhandx) * h
+
+                    }
+                    lhandx += 3
+                }
+
+        //衣服下一件
+                if (rhandY < 350 && rhandY > 0.0 && rhandX > 450 ) {
+
+                    rsframe += 12
+
+                    if(rsframe >= 24)
+                    {
+                        canvas.drawBitmap(three, 550.0f, 40.0f, null)
+                    }
+
+                    if(rsframe >= 36)
+                    {
+                        canvas.drawBitmap(two, 550.0f, 40.0f, null)
+                    }
+
+                    if(rsframe >= 48)
+                    {
+                        canvas.drawBitmap(one, 550.0f, 40.0f, null)
+                        rsframe = 0
+
+                    }
+                }
+                else{
+                    rsframe = 0
+                }
+
+        //褲子下一件
+                if (rhandY < 1000 && rhandY > 750 && rhandX > 450 ) {
+
+                    rpframe += 12
+
+                    if(rpframe >= 24)
+                    {
+                        canvas.drawBitmap(three, 550.0f, 700.0f, null)
+                    }
+
+                    if(rpframe >= 36)
+                    {
+                        canvas.drawBitmap(two, 550.0f, 700.0f, null)
+                    }
+
+                    if(rpframe >= 48)
+                    {
+                        canvas.drawBitmap(one, 550.0f, 700.0f, null)
+                        rpframe = 0
+
+                    }
+                }
+                else{
+                    rpframe = 0
+                }
+
+        //衣服上一件
+                if (lhandY < 350 && lhandY > 0.0 && lhandX < 450 && lhandX > 0) {
+
+                    lsframe += 12
+
+                    if(lsframe >= 24)
+                    {
+                        canvas.drawBitmap(three, 0.0f, 40.0f, null)
+                    }
+
+                    if(lsframe >= 36)
+                    {
+                        canvas.drawBitmap(two, 0.0f, 40.0f, null)
+                    }
+
+                    if(lsframe >= 48)
+                    {
+                        canvas.drawBitmap(one, 0.0f, 40.0f, null)
+                        lsframe = 0
+
+                    }
+                }
+                else{
+                    lsframe = 0
+                }
+        //褲子上一件
+                if (lhandY < 1000 && lhandY > 750 && lhandX < 450 && lhandX > 0) {
+
+                    lpframe += 12
+
+                    if(lpframe >= 24)
+                    {
+                        canvas.drawBitmap(three, 0.0f, 700.0f, null)
+                    }
+
+                    if(lpframe >= 36)
+                    {
+                        canvas.drawBitmap(two, 0.0f, 700.0f, null)
+                    }
+
+                    if(lpframe >= 48)
+                    {
+                        canvas.drawBitmap(one, 0.0f, 700.0f, null)
+                        lpframe = 0
+
+                    }
+                }
+                else{
+                    lpframe = 0
                 }
 
 
@@ -244,6 +411,8 @@ class ChangeClothes : AppCompatActivity() {
                 imageView.setImageBitmap(mutable)
 
             }
+
+
             // 函數來獲取非透明部分的寬度
             fun getNonTransparentWidth(bitmap: Bitmap): Int {
                 val pixels = IntArray(bitmap.width * bitmap.height)

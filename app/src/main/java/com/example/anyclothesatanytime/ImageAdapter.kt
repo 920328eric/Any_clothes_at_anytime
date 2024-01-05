@@ -33,7 +33,7 @@ class ImageAdapter(private val imageUrls: List<String>) : RecyclerView.Adapter<I
             val imageName = imageUrl.substringAfterLast("/")
 
             // 顯示確認刪除的對話框
-            showDeleteConfirmationDialog(context, imageName)
+//            showDeleteConfirmationDialog(context, imageName)
         }
     }
 
@@ -42,34 +42,34 @@ class ImageAdapter(private val imageUrls: List<String>) : RecyclerView.Adapter<I
         return imageUrls.size
     }
 
-    private fun showDeleteConfirmationDialog(context: Context, imageUrl: String) {
-        Log.d(TAG, "Deleting image $imageUrl")
-
-        val imageName = extractImageName(imageUrl)
-        val category = getCategoryFromImageUrl(imageUrl)
-
-        AlertDialog.Builder(context)
-            .setTitle("確認刪除")
-            .setMessage("是否確定刪除這張圖片？")
-            .setPositiveButton("是") { _, _ ->
-                // 使用 FirebaseStorageManager 刪除圖片
-                Log.d(TAG, "Category: $category ImageName: $imageName")
-
-                val firebaseStorageManager = FirebaseStorageManager()
-                firebaseStorageManager.deleteImage(context, category, imageName) { success ->
-                    if (success) {
-                        // 使用 Handler 在主線程上執行更新 RecyclerView
-                        Handler(Looper.getMainLooper()).post {
-                            notifyDataSetChanged()
-                        }
-                    } else {
-                        Log.e(TAG, "Failed to delete image")
-                    }
-                }
-            }
-            .setNegativeButton("否", null)
-            .show()
-    }
+//    private fun showDeleteConfirmationDialog(context: Context, imageUrl: String) {
+//        Log.d(TAG, "Deleting image $imageUrl")
+//
+//        val imageName = extractImageName(imageUrl)
+//        val category = getCategoryFromImageUrl(imageUrl)
+//
+//        AlertDialog.Builder(context)
+//            .setTitle("確認刪除")
+//            .setMessage("是否確定刪除這張圖片？")
+//            .setPositiveButton("是") { _, _ ->
+//                // 使用 FirebaseStorageManager 刪除圖片
+//                Log.d(TAG, "Category: $category ImageName: $imageName")
+//
+//                val firebaseStorageManager = FirebaseStorageManager()
+//                firebaseStorageManager.deleteImage(context, category, imageName) { success ->
+//                    if (success) {
+//                        // 使用 Handler 在主線程上執行更新 RecyclerView
+//                        Handler(Looper.getMainLooper()).post {
+//                            notifyDataSetChanged()
+//                        }
+//                    } else {
+//                        Log.e(TAG, "Failed to delete image")
+//                    }
+//                }
+//            }
+//            .setNegativeButton("否", null)
+//            .show()
+//    }
 
     private fun getCategoryFromImageUrl(imageUrl: String): String {
 

@@ -1,7 +1,5 @@
 package com.example.anyclothesatanytime
 
-import android.animation.ValueAnimator
-import android.content.AsyncQueryHandler
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -9,39 +7,26 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.graphics.PorterDuff
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.CountDownTimer
 import android.os.Handler
 import android.os.HandlerThread
-import android.os.Looper
-import android.provider.ContactsContract.CommonDataKinds.Im
-import android.text.Html
-import android.util.Log
+import android.util.DisplayMetrics
 import android.view.Surface
 import android.view.TextureView
-import android.view.View
+import android.view.WindowManager
 import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import com.example.anyclothesatanytime.ml.MoveNet
-import com.google.android.material.snackbar.Snackbar
-import org.checkerframework.checker.units.qual.min
 import org.tensorflow.lite.DataType
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.support.tensorbuffer.TensorBuffer
-import java.util.Collections.max
-import java.util.Timer
-import java.util.TimerTask
 import kotlin.math.max
 import kotlin.math.min
 
@@ -52,6 +37,8 @@ class ChangeClothes : AppCompatActivity() {
     var rpframe = 0
     var lsframe = 0
     var lpframe = 0
+    var clothingIndex = 0 // 當前使用的衣服編號
+    var pantsIndex = 0 // 當前使用的褲子編號
 
     lateinit var imageProcessor : ImageProcessor
     lateinit var model : MoveNet
@@ -66,8 +53,11 @@ class ChangeClothes : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_clothes)
 
-        var rotationAngle = 0f
-        val rotationSpeed = 5f // 調整旋轉速度
+        val screenWidth = getScreenWidth()
+
+        val firebaseStorageManager = FirebaseStorageManager()
+        var clothingBitmapList: MutableList<Bitmap> = mutableListOf()
+        
 
         // 獲取相機權限
         get_permissions()
@@ -136,15 +126,19 @@ class ChangeClothes : AppCompatActivity() {
                 var w = bitmap.width
 
 
+                // 載入所有衣服、褲子的資源
+                val clothingResources = arrayOf(R.drawable.clothes1, R.drawable.clothes2, R.drawable.clothes3,R.drawable.clothes4, R.drawable.clothes5, R.drawable.clothes6, R.drawable.clothes7,R.drawable.clothes8, R.drawable.clothes9, R.drawable.clothes10)
+                val pantsResources = arrayOf(R.drawable.pants1, R.drawable.pants2, R.drawable.pants3,R.drawable.pants4, R.drawable.pants5, R.drawable.pants6, R.drawable.pants7,R.drawable.pants8, R.drawable.pants9, R.drawable.pants10)
+
                 // 載入衣服、褲子
-                val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.short_sleeves)
-                val pantsBitmap : Bitmap = BitmapFactory.decodeResource(resources,R.drawable.pants)
+                val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, clothingResources[clothingIndex])
+                val pantsBitmap: Bitmap = BitmapFactory.decodeResource(resources, pantsResources[pantsIndex])
 
         //兩肩特徵點
                 var x = 5 * 3 // 起始肩膀特徵點索引
                 val endShoulderIndex = 6
 
-                // 初始化兩肩膀的中心點
+
                 var shoulderCenterX = 0f
                 var shoulderCenterY = 0f
 
@@ -152,7 +146,7 @@ class ChangeClothes : AppCompatActivity() {
                     if (outputFeature0.get(x + 2) > 0.3) {
                         //canvas.drawCircle(outputFeature0.get(x + 1) * w, outputFeature0.get(x) * h, 10f, paint)
 
-                        // 更新兩肩膀的中心點
+
                         shoulderCenterX += outputFeature0.get(x + 1) * w
                         shoulderCenterY += outputFeature0.get(x) * h
                     }
@@ -163,7 +157,7 @@ class ChangeClothes : AppCompatActivity() {
                 var hipx = 11 * 3 // 起始髖特徵點索引
                 val endhipIndex = 12
 
-                // 初始化兩髖的中心點
+
                 var hipCenterX = 0f
                 var hipCenterY = 0f
 
@@ -171,7 +165,7 @@ class ChangeClothes : AppCompatActivity() {
                     if (outputFeature0.get(hipx + 2) > 0.3) {
                         //canvas.drawCircle(outputFeature0.get(hipx + 1) * w, outputFeature0.get(hipx) * h, 10f, paint)
 
-                        // 更新兩髖的中心點
+
                         hipCenterX += outputFeature0.get(hipx + 1) * w
                         hipCenterY += outputFeature0.get(hipx) * h
                     }
@@ -211,6 +205,33 @@ class ChangeClothes : AppCompatActivity() {
 
                     // 繪製衣服
                     canvas.drawBitmap(scaledClothingBitmap, clothingX.toFloat(), clothingY.toFloat(), null)
+                    // 獲取第一張衣服的圖片 URL
+//                    firebaseStorageManager.getImageUrls("clothes") { clothesImageUrls ->
+//                        // 將成功獲取的 URL 列表賦值給 clothingImageUrls
+//                        var clothingImageUrls: List<String> = clothesImageUrls
+//                        val firstImageUrl: String? = clothingImageUrls.getOrNull(0)
+//
+//                        if (!firstImageUrl.isNullOrEmpty()) {
+//                            try {
+//                                // 下載圖片並得到 Bitmap 對象
+//                                val firstImagelist: Bitmap? = Picasso.get().load(firstImageUrl).get()
+//
+//                                // 檢查是否成功下載圖片
+//                                if (firstImagelist != null) {
+//                                    // 存放到 List 中
+//                                    clothingBitmapList.add(firstImagelist)
+//
+//                                    // 在指定位置使用 Canvas 繪製位圖
+//                                    canvas.drawBitmap(firstImagelist, clothingX.toFloat(), clothingY.toFloat(), null)
+//                                } else {
+//                                    // 下載失敗的處理邏輯
+//                                    // 可以在這裡使用預設的 Bitmap 或其他處理方式
+//                                }
+//                            } catch (e: Exception) {
+//                                e.printStackTrace()
+//                            }
+//                        }
+//                    }
 
 
                 //載入褲子
@@ -227,10 +248,10 @@ class ChangeClothes : AppCompatActivity() {
                     val hipscaleRatio = hipWidth / getNonTransparentWidth(pantsBitmap)
 
                     // 計算縮小後的寬度和高度
-                    val hipscaledWidth = (getNonTransparentWidth(pantsBitmap) * hipscaleRatio).toInt()
-                    val hipscaledHeight = (getNonTransparentHeight(pantsBitmap) * hipscaleRatio).toInt()
+                    val hipscaledWidth = (getNonTransparentWidth(pantsBitmap) * hipscaleRatio).toInt() -20
+                    val hipscaledHeight = (getNonTransparentHeight(pantsBitmap) * hipscaleRatio).toInt() -20
 
-                    // 進行等比例縮小
+                    // 進行等比例縮小或放大
                     val hipscaledpantsBitmap = Bitmap.createScaledBitmap(pantsBitmap, hipscaledWidth, hipscaledHeight, true)
 
                     // 計算衣服圖片的中心點，使其與兩邊髖的中心點保持同步
@@ -239,7 +260,7 @@ class ChangeClothes : AppCompatActivity() {
 
                     // 計算褲子應該放置的位置
                     val pantsX = hippantsCenterX - hipscaledWidth / 2
-                    val pantsY = hippantsCenterY - hipscaledHeight / 2 +220
+                    val pantsY = hippantsCenterY - hipscaledHeight / 2 + getNonTransparentHeight(hipscaledpantsBitmap) / 2 -20
 
                     // 繪製褲子
                     canvas.drawBitmap(hipscaledpantsBitmap, pantsX.toFloat(), pantsY.toFloat(), null)
@@ -260,8 +281,11 @@ class ChangeClothes : AppCompatActivity() {
                 val two: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading2)
                 val one: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading3)
 
-                canvas.drawBitmap(shirtRightButton, 550.0f, 40.0f, null)
-                canvas.drawBitmap(pantsRightButton, 550.0f, 700f, null)
+                val screenWidthFloat = screenWidth.toFloat() - 170
+                val screenWidthCenter = screenWidth.toFloat() / 2
+
+                canvas.drawBitmap(shirtRightButton, screenWidthFloat , 40.0f, null)
+                canvas.drawBitmap(pantsRightButton, screenWidthFloat, 700f, null)
                 canvas.drawBitmap(shirtLeftButton, 0.0f, 40.0f, null)
                 canvas.drawBitmap(pantsLeftButton, 0.0f, 700.0f, null)
 
@@ -304,24 +328,29 @@ class ChangeClothes : AppCompatActivity() {
                 }
 
         //衣服下一件
-                if (rhandY < 350 && rhandY > 0.0 && rhandX > 450 ) {
+                if (rhandY < 350 && rhandY > 0.0 && rhandX > screenWidthCenter ) {
 
                     rsframe += 12
 
                     if(rsframe >= 24)
                     {
-                        canvas.drawBitmap(three, 550.0f, 40.0f, null)
+                        canvas.drawBitmap(three, screenWidthFloat , 40.0f, null)
                     }
 
                     if(rsframe >= 36)
                     {
-                        canvas.drawBitmap(two, 550.0f, 40.0f, null)
+                        canvas.drawBitmap(two, screenWidthFloat , 40.0f, null)
                     }
 
                     if(rsframe >= 48)
                     {
-                        canvas.drawBitmap(one, 550.0f, 40.0f, null)
+                        canvas.drawBitmap(one, screenWidthFloat , 40.0f, null)
                         rsframe = 0
+
+                        clothingIndex ++
+                        if(clothingIndex == 10){
+                            clothingIndex = 0
+                        }
 
                     }
                 }
@@ -330,24 +359,29 @@ class ChangeClothes : AppCompatActivity() {
                 }
 
         //褲子下一件
-                if (rhandY < 1000 && rhandY > 750 && rhandX > 450 ) {
+                if (rhandY < 1000 && rhandY > 750 && rhandX > screenWidthCenter) {
 
                     rpframe += 12
 
                     if(rpframe >= 24)
                     {
-                        canvas.drawBitmap(three, 550.0f, 700.0f, null)
+                        canvas.drawBitmap(three, screenWidthFloat , 700.0f, null)
                     }
 
                     if(rpframe >= 36)
                     {
-                        canvas.drawBitmap(two, 550.0f, 700.0f, null)
+                        canvas.drawBitmap(two, screenWidthFloat , 700.0f, null)
                     }
 
                     if(rpframe >= 48)
                     {
-                        canvas.drawBitmap(one, 550.0f, 700.0f, null)
+                        canvas.drawBitmap(one, screenWidthFloat , 700.0f, null)
                         rpframe = 0
+
+                        pantsIndex ++
+                        if(pantsIndex == 10){
+                            pantsIndex = 0
+                        }
 
                     }
                 }
@@ -356,7 +390,7 @@ class ChangeClothes : AppCompatActivity() {
                 }
 
         //衣服上一件
-                if (lhandY < 350 && lhandY > 0.0 && lhandX < 450 && lhandX > 0) {
+                if (lhandY < 350 && lhandY > 0.0 && lhandX < screenWidthCenter && lhandX > 0) {
 
                     lsframe += 12
 
@@ -375,13 +409,18 @@ class ChangeClothes : AppCompatActivity() {
                         canvas.drawBitmap(one, 0.0f, 40.0f, null)
                         lsframe = 0
 
+                        clothingIndex --
+                        if (clothingIndex < 0) {
+                            clothingIndex = 9
+                        }
+
                     }
                 }
                 else{
                     lsframe = 0
                 }
         //褲子上一件
-                if (lhandY < 1000 && lhandY > 750 && lhandX < 450 && lhandX > 0) {
+                if (lhandY < 1000 && lhandY > 750 && lhandX < screenWidthCenter && lhandX > 0) {
 
                     lpframe += 12
 
@@ -400,6 +439,10 @@ class ChangeClothes : AppCompatActivity() {
                         canvas.drawBitmap(one, 0.0f, 700.0f, null)
                         lpframe = 0
 
+                        pantsIndex --
+                        if(pantsIndex < 0){
+                            pantsIndex = 9
+                        }
                     }
                 }
                 else{
@@ -411,8 +454,6 @@ class ChangeClothes : AppCompatActivity() {
                 imageView.setImageBitmap(mutable)
 
             }
-
-
             // 函數來獲取非透明部分的寬度
             fun getNonTransparentWidth(bitmap: Bitmap): Int {
                 val pixels = IntArray(bitmap.width * bitmap.height)
@@ -454,6 +495,15 @@ class ChangeClothes : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun getScreenWidth(): Int {
+        val windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val displayMetrics = DisplayMetrics()
+
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+
+        return displayMetrics.widthPixels
     }
 
     override fun onDestroy() {

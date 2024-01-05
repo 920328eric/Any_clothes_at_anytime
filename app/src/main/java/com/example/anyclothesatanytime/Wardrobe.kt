@@ -36,15 +36,15 @@
 
             upload_clothes_button.setOnClickListener {
                 val intent = Intent(this, Upload::class.java)
-                intent.putExtra("button_choose", "選擇衣服圖片")
-                intent.putExtra("button_upload", "上傳衣服圖片")
+                intent.putExtra("button_choose", "選擇衣服")
+                intent.putExtra("button_upload", "上傳衣服")
                 startActivity(intent)
             }
 
             upload_pants_button.setOnClickListener {
                 val intent = Intent(this, Upload::class.java)
-                intent.putExtra("button_choose", "選擇褲子圖片")
-                intent.putExtra("button_upload", "上傳褲子圖片")
+                intent.putExtra("button_choose", "選擇褲子")
+                intent.putExtra("button_upload", "上傳褲子")
                 startActivity(intent)
             }
 

@@ -11,6 +11,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -39,6 +40,10 @@ class ChangeClothes : AppCompatActivity() {
     var lpframe = 0
     var clothingIndex = 0 // 當前使用的衣服編號
     var pantsIndex = 0 // 當前使用的褲子編號
+    var limitframe = 0
+    var controlfrane = 0
+
+    private var mediaPlayer: MediaPlayer? = null
 
     lateinit var imageProcessor : ImageProcessor
     lateinit var model : MoveNet
@@ -203,6 +208,9 @@ class ChangeClothes : AppCompatActivity() {
                     val clothingX = clothingCenterX - scaledWidth / 2
                     val clothingY = clothingCenterY - scaledHeight / 2 +220
 
+                    //計算衣服底部座標
+                    val clothingBottomY = clothingCenterY + scaledHeight / 2
+
                     // 繪製衣服
                     canvas.drawBitmap(scaledClothingBitmap, clothingX.toFloat(), clothingY.toFloat(), null)
                     // 獲取第一張衣服的圖片 URL
@@ -264,11 +272,29 @@ class ChangeClothes : AppCompatActivity() {
 
                     // 繪製褲子
                     canvas.drawBitmap(hipscaledpantsBitmap, pantsX.toFloat(), pantsY.toFloat(), null)
+
+
+                    limitframe += 12
+                    if( ( hipCenterY - clothingBottomY ) < 140 && limitframe >= 24){
+                        limitframe = 0
+                        forwardSound()
+                    }
+                    else if( ( hipCenterY - clothingBottomY ) > 240 && limitframe >= 24){
+                        limitframe = 0
+                        backwordSound()
+                    }
+
                 }
                 else
                 {
-                    val message = "系統正在進行推斷\n請讓相機照到所有肩膀和髖部"
-                    Toast.makeText(textureView.context, message, Toast.LENGTH_SHORT).show()
+                    controlfrane += 12
+                    if(controlfrane >= 96){
+                        controlfrane = 0
+
+                        val message = "系統正在進行推斷\n請讓相機照到所有肩膀和髖部"
+                        Toast.makeText(textureView.context, message, Toast.LENGTH_SHORT).show()
+                    }
+
                 }
 
 
@@ -285,9 +311,9 @@ class ChangeClothes : AppCompatActivity() {
                 val screenWidthCenter = screenWidth.toFloat() / 2
 
                 canvas.drawBitmap(shirtRightButton, screenWidthFloat , 40.0f, null)
-                canvas.drawBitmap(pantsRightButton, screenWidthFloat, 700f, null)
+                canvas.drawBitmap(pantsRightButton, screenWidthFloat, 650f, null)
                 canvas.drawBitmap(shirtLeftButton, 0.0f, 40.0f, null)
-                canvas.drawBitmap(pantsLeftButton, 0.0f, 700.0f, null)
+                canvas.drawBitmap(pantsLeftButton, 0.0f, 650.0f, null)
 
             // 起始右手特徵點
                 var rhandx = 9 * 3
@@ -359,23 +385,23 @@ class ChangeClothes : AppCompatActivity() {
                 }
 
         //褲子下一件
-                if (rhandY < 1000 && rhandY > 750 && rhandX > screenWidthCenter) {
+                if (rhandY < 1000 && rhandY > 650 && rhandX > screenWidthCenter) {
 
                     rpframe += 12
 
                     if(rpframe >= 24)
                     {
-                        canvas.drawBitmap(three, screenWidthFloat , 700.0f, null)
+                        canvas.drawBitmap(three, screenWidthFloat , 650.0f, null)
                     }
 
                     if(rpframe >= 36)
                     {
-                        canvas.drawBitmap(two, screenWidthFloat , 700.0f, null)
+                        canvas.drawBitmap(two, screenWidthFloat , 650.0f, null)
                     }
 
                     if(rpframe >= 48)
                     {
-                        canvas.drawBitmap(one, screenWidthFloat , 700.0f, null)
+                        canvas.drawBitmap(one, screenWidthFloat , 650.0f, null)
                         rpframe = 0
 
                         pantsIndex ++
@@ -420,23 +446,23 @@ class ChangeClothes : AppCompatActivity() {
                     lsframe = 0
                 }
         //褲子上一件
-                if (lhandY < 1000 && lhandY > 750 && lhandX < screenWidthCenter && lhandX > 0) {
+                if (lhandY < 1000 && lhandY > 650 && lhandX < screenWidthCenter && lhandX > 0) {
 
                     lpframe += 12
 
                     if(lpframe >= 24)
                     {
-                        canvas.drawBitmap(three, 0.0f, 700.0f, null)
+                        canvas.drawBitmap(three, 0.0f, 650.0f, null)
                     }
 
                     if(lpframe >= 36)
                     {
-                        canvas.drawBitmap(two, 0.0f, 700.0f, null)
+                        canvas.drawBitmap(two, 0.0f, 650.0f, null)
                     }
 
                     if(lpframe >= 48)
                     {
-                        canvas.drawBitmap(one, 0.0f, 700.0f, null)
+                        canvas.drawBitmap(one, 0.0f, 650.0f, null)
                         lpframe = 0
 
                         pantsIndex --
@@ -454,47 +480,49 @@ class ChangeClothes : AppCompatActivity() {
                 imageView.setImageBitmap(mutable)
 
             }
-            // 函數來獲取非透明部分的寬度
-            fun getNonTransparentWidth(bitmap: Bitmap): Int {
-                val pixels = IntArray(bitmap.width * bitmap.height)
-                bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
 
-                var minX = bitmap.width
-                var maxX = 0
-
-                for (x in 0 until bitmap.width) {
-                    for (y in 0 until bitmap.height) {
-                        if (pixels[x + y * bitmap.width] != 0) {
-                            minX = min(minX, x)
-                            maxX = max(maxX, x)
-                        }
-                    }
-                }
-
-                return maxX - minX + 1
-            }
-
-            // 函數來獲取非透明部分的高度
-            fun getNonTransparentHeight(bitmap: Bitmap): Int {
-                val pixels = IntArray(bitmap.width * bitmap.height)
-                bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-
-                var minY = bitmap.height
-                var maxY = 0
-
-                for (x in 0 until bitmap.width) {
-                    for (y in 0 until bitmap.height) {
-                        if (pixels[x + y * bitmap.width] != 0) {
-                            minY = min(minY, y)
-                            maxY = max(maxY, y)
-                        }
-                    }
-                }
-
-                return maxY - minY + 1
-            }
 
         }
+    }
+
+    // 函數來獲取非透明部分的寬度
+    fun getNonTransparentWidth(bitmap: Bitmap): Int {
+        val pixels = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+        var minX = bitmap.width
+        var maxX = 0
+
+        for (x in 0 until bitmap.width) {
+            for (y in 0 until bitmap.height) {
+                if (pixels[x + y * bitmap.width] != 0) {
+                    minX = min(minX, x)
+                    maxX = max(maxX, x)
+                }
+            }
+        }
+
+        return maxX - minX + 1
+    }
+
+    // 函數來獲取非透明部分的高度
+    fun getNonTransparentHeight(bitmap: Bitmap): Int {
+        val pixels = IntArray(bitmap.width * bitmap.height)
+        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+
+        var minY = bitmap.height
+        var maxY = 0
+
+        for (x in 0 until bitmap.width) {
+            for (y in 0 until bitmap.height) {
+                if (pixels[x + y * bitmap.width] != 0) {
+                    minY = min(minY, y)
+                    maxY = max(maxY, y)
+                }
+            }
+        }
+
+        return maxY - minY + 1
     }
 
     private fun getScreenWidth(): Int {
@@ -504,6 +532,30 @@ class ChangeClothes : AppCompatActivity() {
         windowManager.defaultDisplay.getMetrics(displayMetrics)
 
         return displayMetrics.widthPixels
+    }
+
+    private fun forwardSound() {
+        // 播放提示音，這裡使用raw資源中的音頻文件
+        mediaPlayer = MediaPlayer.create(this, R.raw.forward)
+        mediaPlayer?.start()
+
+        // 設置播放結束的監聽器，釋放MediaPlayer資源
+        mediaPlayer?.setOnCompletionListener {
+            mediaPlayer?.release()
+            mediaPlayer = null
+        }
+    }
+
+    private fun backwordSound() {
+        // 播放提示音，這裡使用raw資源中的音頻文件
+        mediaPlayer = MediaPlayer.create(this, R.raw.backword)
+        mediaPlayer?.start()
+
+        // 設置播放結束的監聽器，釋放MediaPlayer資源
+        mediaPlayer?.setOnCompletionListener {
+            mediaPlayer?.release()
+            mediaPlayer = null
+        }
     }
 
     override fun onDestroy() {

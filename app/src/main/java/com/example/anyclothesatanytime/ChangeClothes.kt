@@ -55,13 +55,30 @@ class ChangeClothes : AppCompatActivity() {
     lateinit var cameraManager : CameraManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 載入選衣服、褲子按鈕、加載動畫
+        val shirtRightButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.rightbutton)
+        val pantsRightButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.rightbutton)
+        val shirtLeftButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.leftbutton)
+        val pantsLeftButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.leftbutton)
+        val three: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading1)
+        val two: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading2)
+        val one: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading3)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_change_clothes)
 
+        // 載入所有衣服、褲子的資源
+        val clothingResources = arrayOf(R.drawable.clothes1, R.drawable.clothes2, R.drawable.clothes3,R.drawable.clothes4, R.drawable.clothes5, R.drawable.clothes6, R.drawable.clothes7,R.drawable.clothes8, R.drawable.clothes9, R.drawable.clothes10)
+        val pantsResources = arrayOf(R.drawable.pants1, R.drawable.pants2, R.drawable.pants3,R.drawable.pants4, R.drawable.pants5, R.drawable.pants6, R.drawable.pants7,R.drawable.pants8, R.drawable.pants9, R.drawable.pants10)
+
         val screenWidth = getScreenWidth()
 
-        val firebaseStorageManager = FirebaseStorageManager()
-        var clothingBitmapList: MutableList<Bitmap> = mutableListOf()
+
+// 螢幕寬
+        val screenWidthFloat = screenWidth.toFloat() - 170
+        val screenWidthCenter = screenWidth.toFloat() / 2
+
+//        val firebaseStorageManager = FirebaseStorageManager()
+//        var clothingBitmapList: MutableList<Bitmap> = mutableListOf()
         
 
         // 獲取相機權限
@@ -131,57 +148,76 @@ class ChangeClothes : AppCompatActivity() {
                 var w = bitmap.width
 
 
-                // 載入所有衣服、褲子的資源
-                val clothingResources = arrayOf(R.drawable.clothes1, R.drawable.clothes2, R.drawable.clothes3,R.drawable.clothes4, R.drawable.clothes5, R.drawable.clothes6, R.drawable.clothes7,R.drawable.clothes8, R.drawable.clothes9, R.drawable.clothes10)
-                val pantsResources = arrayOf(R.drawable.pants1, R.drawable.pants2, R.drawable.pants3,R.drawable.pants4, R.drawable.pants5, R.drawable.pants6, R.drawable.pants7,R.drawable.pants8, R.drawable.pants9, R.drawable.pants10)
-
-                // 載入衣服、褲子
-                val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, clothingResources[clothingIndex])
-                val pantsBitmap: Bitmap = BitmapFactory.decodeResource(resources, pantsResources[pantsIndex])
-
-        //兩肩特徵點
+//肩膀座標
                 var x = 5 * 3 // 起始肩膀特徵點索引
                 val endShoulderIndex = 6
 
-
                 var shoulderCenterX = 0f
                 var shoulderCenterY = 0f
-
-                while (x <= endShoulderIndex * 3 + 2) {
-                    if (outputFeature0.get(x + 2) > 0.3) {
-                        //canvas.drawCircle(outputFeature0.get(x + 1) * w, outputFeature0.get(x) * h, 10f, paint)
-
-
-                        shoulderCenterX += outputFeature0.get(x + 1) * w
-                        shoulderCenterY += outputFeature0.get(x) * h
-                    }
-                    x += 3
-                }
-
-        //兩髖特徵點
+//髖座標
                 var hipx = 11 * 3 // 起始髖特徵點索引
                 val endhipIndex = 12
 
-
                 var hipCenterX = 0f
                 var hipCenterY = 0f
+//右手座標
+                var rhandx = 9 * 3 // 起始右手特徵點索引
+                val endrhandxIndex = 9
 
-                while (hipx <= endhipIndex * 3 + 2) {
-                    if (outputFeature0.get(hipx + 2) > 0.3) {
-                        //canvas.drawCircle(outputFeature0.get(hipx + 1) * w, outputFeature0.get(hipx) * h, 10f, paint)
+                var rhandX = 0f
+                var rhandY = 0f
+//左手座標
+                var lhandx = 10 * 3 // 起始左手特徵點索引
+                val endlhandxIndex = 10
+
+                var lhandX = 0f
+                var lhandY = 0f
 
 
-                        hipCenterX += outputFeature0.get(hipx + 1) * w
-                        hipCenterY += outputFeature0.get(hipx) * h
+        //需要的座標
+                while (x <= endShoulderIndex * 3 + 2 || hipx <= endhipIndex * 3 + 2 || rhandx <= endrhandxIndex * 3 + 2 || lhandx <= endlhandxIndex * 3 + 2) {
+                    if (x <= endShoulderIndex * 3 + 2) {
+                        if (outputFeature0.get(x + 2) > 0.3) {
+                            shoulderCenterX += outputFeature0.get(x + 1) * w
+                            shoulderCenterY += outputFeature0.get(x) * h
+                        }
+                        x += 3
                     }
-                    hipx += 3
+
+                    if (hipx <= endhipIndex * 3 + 2) {
+                        if (outputFeature0.get(hipx + 2) > 0.3) {
+                            hipCenterX += outputFeature0.get(hipx + 1) * w
+                            hipCenterY += outputFeature0.get(hipx) * h
+                        }
+                        hipx += 3
+                    }
+
+                    if (rhandx <= endrhandxIndex * 3 + 2) {
+                        if (outputFeature0.get(rhandx + 2) > 0.3) {
+                            rhandX = outputFeature0.get(rhandx + 1) * w
+                            rhandY = outputFeature0.get(rhandx) * h
+                        }
+                        rhandx += 3
+                    }
+
+                    if (lhandx <= endlhandxIndex * 3 + 2) {
+                        if (outputFeature0.get(lhandx + 2) > 0.3) {
+                            lhandX = outputFeature0.get(lhandx + 1) * w
+                            lhandY = outputFeature0.get(lhandx) * h
+                        }
+                        lhandx += 3
+                    }
                 }
 
-        //判斷有沒有照到人
+
+                //判斷有沒有照到人
                 if(shoulderCenterX != 0f && shoulderCenterY != 0f && hipCenterX != 0f && hipCenterY != 0f)
                 {
 
                 //載入衣服
+                    // 載入衣服、褲子
+                    val clothingBitmap: Bitmap = BitmapFactory.decodeResource(resources, clothingResources[clothingIndex])
+                    val pantsBitmap: Bitmap = BitmapFactory.decodeResource(resources, pantsResources[pantsIndex])
 
                     // 計算兩個肩膀關節點的中心點
                     shoulderCenterX /= 2
@@ -244,7 +280,6 @@ class ChangeClothes : AppCompatActivity() {
 
                 //載入褲子
 
-
                     // 計算兩個髖關節點的中心點
                     hipCenterX /= 2
                     hipCenterY /= 2
@@ -299,59 +334,11 @@ class ChangeClothes : AppCompatActivity() {
 
 
     // 載入選衣服、褲子按鈕、加載動畫
-                val shirtRightButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.rightbutton)
-                val pantsRightButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.rightbutton)
-                val shirtLeftButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.leftbutton)
-                val pantsLeftButton: Bitmap = BitmapFactory.decodeResource(resources, R.drawable.leftbutton)
-                val three: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading1)
-                val two: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading2)
-                val one: Bitmap =  BitmapFactory.decodeResource(resources, R.drawable.loading3)
-
-                val screenWidthFloat = screenWidth.toFloat() - 170
-                val screenWidthCenter = screenWidth.toFloat() / 2
-
                 canvas.drawBitmap(shirtRightButton, screenWidthFloat , 40.0f, null)
-                canvas.drawBitmap(pantsRightButton, screenWidthFloat, 650f, null)
+                canvas.drawBitmap(pantsRightButton, screenWidthFloat, 550f, null)
                 canvas.drawBitmap(shirtLeftButton, 0.0f, 40.0f, null)
-                canvas.drawBitmap(pantsLeftButton, 0.0f, 650.0f, null)
+                canvas.drawBitmap(pantsLeftButton, 0.0f, 550f, null)
 
-            // 起始右手特徵點
-                var rhandx = 9 * 3
-                val endrhandxIndex = 9
-
-                //右手座標
-                var rhandX = 0f
-                var rhandY = 0f
-
-                while (rhandx <= endrhandxIndex * 3 + 2) {
-                    if (outputFeature0.get(rhandx + 2) > 0.3) {
-                        //canvas.drawCircle(outputFeature0.get(rhandx + 1) * w, outputFeature0.get(rhandx) * h, 10f, paint)
-
-                        rhandX = outputFeature0.get(rhandx + 1) * w
-                        rhandY = outputFeature0.get(rhandx) * h
-
-                    }
-                    rhandx += 3
-                }
-
-            // 起始左手特徵點
-                var lhandx = 10 * 3
-                val endlhandxIndex = 10
-
-                //左手座標
-                var lhandX = 0f
-                var lhandY = 0f
-
-                while (lhandx <= endlhandxIndex * 3 + 2) {
-                    if (outputFeature0.get(lhandx + 2) > 0.3) {
-                        //canvas.drawCircle(outputFeature0.get(lhandx + 1) * w, outputFeature0.get(lhandx) * h, 10f, paint)
-
-                        lhandX = outputFeature0.get(lhandx + 1) * w
-                        lhandY = outputFeature0.get(lhandx) * h
-
-                    }
-                    lhandx += 3
-                }
 
         //衣服下一件
                 if (rhandY < 350 && rhandY > 0.0 && rhandX > screenWidthCenter ) {
@@ -385,23 +372,23 @@ class ChangeClothes : AppCompatActivity() {
                 }
 
         //褲子下一件
-                if (rhandY < 1000 && rhandY > 650 && rhandX > screenWidthCenter) {
+                if (rhandY < 800 && rhandY > 550 && rhandX > screenWidthCenter) {
 
                     rpframe += 12
 
                     if(rpframe >= 24)
                     {
-                        canvas.drawBitmap(three, screenWidthFloat , 650.0f, null)
+                        canvas.drawBitmap(three, screenWidthFloat , 550.0f, null)
                     }
 
                     if(rpframe >= 36)
                     {
-                        canvas.drawBitmap(two, screenWidthFloat , 650.0f, null)
+                        canvas.drawBitmap(two, screenWidthFloat , 550.0f, null)
                     }
 
                     if(rpframe >= 48)
                     {
-                        canvas.drawBitmap(one, screenWidthFloat , 650.0f, null)
+                        canvas.drawBitmap(one, screenWidthFloat , 550.0f, null)
                         rpframe = 0
 
                         pantsIndex ++
@@ -446,23 +433,23 @@ class ChangeClothes : AppCompatActivity() {
                     lsframe = 0
                 }
         //褲子上一件
-                if (lhandY < 1000 && lhandY > 650 && lhandX < screenWidthCenter && lhandX > 0) {
+                if (lhandY < 800 && lhandY > 550 && lhandX < screenWidthCenter && lhandX > 0) {
 
                     lpframe += 12
 
                     if(lpframe >= 24)
                     {
-                        canvas.drawBitmap(three, 0.0f, 650.0f, null)
+                        canvas.drawBitmap(three, 0.0f, 550.0f, null)
                     }
 
                     if(lpframe >= 36)
                     {
-                        canvas.drawBitmap(two, 0.0f, 650.0f, null)
+                        canvas.drawBitmap(two, 0.0f, 550.0f, null)
                     }
 
                     if(lpframe >= 48)
                     {
-                        canvas.drawBitmap(one, 0.0f, 650.0f, null)
+                        canvas.drawBitmap(one, 0.0f, 550.0f, null)
                         lpframe = 0
 
                         pantsIndex --
@@ -480,7 +467,6 @@ class ChangeClothes : AppCompatActivity() {
                 imageView.setImageBitmap(mutable)
 
             }
-
 
         }
     }

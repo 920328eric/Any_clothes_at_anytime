@@ -21,7 +21,7 @@ class FirebaseStorageManager {
         mProgressDialog.setMessage("Please wait, image being uploading...")
 
         val timestamp = System.currentTimeMillis()
-        val fileName = "ClothesPic_$timestamp.png"
+        val fileName = "clothes_$timestamp.png"
 
         // 使用 category 變數指定資料夾
         val uploadTask = mStorageRef.child("$category/$fileName").putFile(imageURL)

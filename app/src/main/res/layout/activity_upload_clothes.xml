@@ -8,25 +8,42 @@
 
     <Button
         android:id="@+id/choose"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.1"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.693" />
+        app:layout_constraintVertical_bias="0.562"
+        app:layout_constraintWidth_percent="0.5" />
 
     <Button
         android:id="@+id/upload"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:text=""
+        app:layout_constraintBottom_toTopOf="@+id/linkButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/choose"
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintHeight_percent="0.1" />
+
+    <Button
+        android:id="@+id/linkButton"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:text="去背網站"
+        app:layout_constraintTop_toBottomOf="@+id/upload"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.811" />
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintHeight_percent="0.1" />
+
 
     <ImageView
         android:id="@+id/image_view"
@@ -36,6 +53,7 @@
         app:layout_constraintBottom_toTopOf="@+id/upload"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.293" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 
@@ -29,6 +30,7 @@ class Upload : AppCompatActivity() {
         val Upload= findViewById<Button>(R.id.upload)
         val Choose = findViewById<Button>(R.id.choose)
         var imageView = findViewById<ImageView>(R.id.image_view)
+        val linkButton = findViewById<Button>(R.id.linkButton)
 
         // 使用接收到的資料設置 choose 和 upload 按鈕的文本
         Choose.text = buttonChooseText
@@ -54,6 +56,20 @@ class Upload : AppCompatActivity() {
             intent.type = "image/*"
             startActivityForResult(intent, 1)
         }
+
+        linkButton.setOnClickListener(View.OnClickListener {
+            // 定義你想要連結的網址
+            val url = "https://www.photoroom.com/zh-tw/tools/background-remover"
+
+            // 創建一個 Intent 並設定 Action 為 ACTION_VIEW
+            val intent = Intent(Intent.ACTION_VIEW)
+
+            // 將網址轉換為 Uri 並設定給 Intent 的 data
+            intent.data = Uri.parse(url)
+
+            // 啟動 Intent，開啟瀏覽器顯示網頁
+            startActivity(intent)
+        })
 
     }
 

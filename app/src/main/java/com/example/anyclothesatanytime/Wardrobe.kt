@@ -63,16 +63,23 @@
             reload_button.setOnClickListener {
                 // 重新加載衣服
                 firebaseStorageManager.getImageUrls("clothes") { clothesImageUrls ->
-                    val clothesAdapter = ImageAdapter(clothesImageUrls)
+                    val clothesList = clothesImageUrls.toMutableList()
+                    clothesList.shuffle()
+
+                    val clothesAdapter = ImageAdapter(clothesList)
                     clothesRecyclerView.adapter = clothesAdapter
                 }
 
                 // 重新加載褲子
                 firebaseStorageManager.getImageUrls("pants") { pantsImageUrls ->
-                    val pantsAdapter = ImageAdapter(pantsImageUrls)
+                    val pantsList = pantsImageUrls.toMutableList()
+                    pantsList.shuffle()
+
+                    val pantsAdapter = ImageAdapter(pantsList)
                     pantsRecyclerView.adapter = pantsAdapter
                 }
             }
+
 
 
         }

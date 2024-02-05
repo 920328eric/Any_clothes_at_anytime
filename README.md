@@ -11,30 +11,22 @@
 ## 畫面
 1. 初始介面
 
-![範例圖片](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/0e5819f9-2a30-40e6-8448-b35d93ea2d9e)
+![範例圖片 1](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/470173a3-53eb-4357-bf85-6b23ba64ad33)
 
-3. 試衣間
+2. 試衣間
 
-![範例圖片](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/f1e26a78-a9b5-4be1-b289-b1fd37edce1b)
-![範例圖片](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/2fda86c3-b207-416b-95dc-dbbb5c433861)
+![範例圖片 2](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/dbc0fa6a-8deb-4145-bcd2-f2f060062b53)
+![範例圖片 3](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/f35ce6dd-f190-4885-9e1c-be040502dfc8)
 
+3. 衣櫃（目前還無法連動）
 
-5. 衣櫃（目前還無法連動）
-
-![範例圖片](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/ad16b9b0-28ef-42c4-9eb1-2008aa15076c)
-
+![範例圖片 4](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/f87d5bec-8b70-4c26-97d5-32f220f3f3c1)
 
 
-![範例圖片](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/09d644d3-c291-49d3-920c-3480a6641d47)
-![範例圖片](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/563a0ab1-d294-4ce4-88cf-54146b79538d)
-## 
+## 操作說明
 
+使用者透過試衣間功能進行衣物穿搭之模擬，系統會透過語音提示使用者須往前或往後，使衣物圖片的大小更貼近其身體比例。若要更換上一件或下一件衣服，只需將手停滯在畫面中的按鈕處達3 秒，系統即會加載以更替衣物，而更替褲子也是相同的做法。（不需透過按手機畫面，待在原地就可以）
 
-## 聯絡作者
+## 支援
 
-> ps. 這邊絕對不是業配，而是要適當提供一些方式讓觀看者知道你的聯絡方式，讓他們可以更方便的找到你。
-你可以透過以下方式與我聯絡
-
-- [部落格](https://israynotarray.com/)
-- [Facebook](https://www.facebook.com/israynotarray)
-- [Instagram](https://www.instagram.com/isray_notarray/)
+目前僅支援Android手機

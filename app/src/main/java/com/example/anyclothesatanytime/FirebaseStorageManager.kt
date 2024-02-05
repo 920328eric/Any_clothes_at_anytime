@@ -17,11 +17,12 @@ class FirebaseStorageManager {
     private lateinit var mProgressDialog: ProgressDialog
 
     fun uploadImage(mContext: Context, imageURL: Uri, category: String) {
+
         mProgressDialog = ProgressDialog(mContext)
         mProgressDialog.setMessage("Please wait, image being uploading...")
 
         val timestamp = System.currentTimeMillis()
-        val fileName = "clothes_$timestamp.png"
+        val fileName = "ClothesPic_$timestamp.png"
 
         // 使用 category 變數指定資料夾
         val uploadTask = mStorageRef.child("$category/$fileName").putFile(imageURL)
@@ -34,7 +35,7 @@ class FirebaseStorageManager {
             (mContext as Upload).selectedImageUri = null
 
             // 清空顯示的圖片
-            (mContext as Upload).clearImageView()
+            (mContext ).clearImageView()
 
             // 顯示不同的訊息
             val successMessage = when (category) {

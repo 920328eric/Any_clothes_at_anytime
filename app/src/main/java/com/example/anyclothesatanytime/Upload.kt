@@ -1,11 +1,13 @@
 package com.example.anyclothesatanytime
 
 import android.annotation.SuppressLint
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -36,19 +38,25 @@ class Upload : AppCompatActivity() {
         Choose.text = buttonChooseText
         Upload.text = buttonUploadText
 
-        // 上傳衣服圖片
         Upload.setOnClickListener {
+            Log.d("UploadButton", "Upload button clicked")
             val firebaseStorageManager = FirebaseStorageManager()
             if (selectedImageUri != null) {
-                if(Choose.text == "選擇衣服圖片"){
+                Log.d("UploadButton", "Selected image URI is not null")
+                if(Choose.text == "選擇衣服"){
+                    Log.d("UploadButton", "Choosing clothes image")
                     firebaseStorageManager.uploadImage(this, selectedImageUri!!, "clothes")
                 }
 
-                if(Choose.text == "選擇褲子圖片"){
+                if(Choose.text == "選擇褲子"){
+                    Log.d("UploadButton", "Choosing pants image")
                     firebaseStorageManager.uploadImage(this, selectedImageUri!!, "pants")
                 }
+            } else {
+                Log.d("UploadButton", "Selected image URI is null")
             }
         }
+
 
         // 選取圖片
         Choose.setOnClickListener {

@@ -18,7 +18,7 @@
 ![範例圖片 2](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/dbc0fa6a-8deb-4145-bcd2-f2f060062b53)
 ![範例圖片 3](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/f35ce6dd-f190-4885-9e1c-be040502dfc8)
 
-3. 衣櫃（目前還無法連動）
+3. 衣櫃（目前還無法連動），但可以點選右上方的重整按鈕，隨機搭配衣物
 
 ![範例圖片 4](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/f87d5bec-8b70-4c26-97d5-32f220f3f3c1)
 

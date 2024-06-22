@@ -4,7 +4,7 @@
 ![專案封面圖](https://github.com/920328eric/Any_clothes_at_anytime/assets/114470260/122748b6-b332-41a9-9cfc-827423ac5638)
 
 ## 使用前說明
-1. 目前還無法靠使用者介面上傳衣服和褲子的圖片，因為可能要寫登入介面才可使用，Firebase 資料庫一直卡在身份驗證無法通過
+1. 目前還未寫登入介面進行身份驗證，所以無法靠使用者介面上傳衣服和褲子的圖片以達成連動
 2. 衣服和褲子圖片可以自行上網下載，放到程式碼中的ChangeClothes 的 載入所有衣服、褲子的資源（val clothingResources = 、val pantsResources = 的 arrayOf 裡）
 3. 記得加上自己的google-services.json，以連接自己的 Firebase 資料庫
 

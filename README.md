@@ -5,8 +5,9 @@
 
 ## 使用前說明
 1. 目前還未寫登入介面進行身份驗證，所以無法靠使用者介面上傳衣服和褲子的圖片以達成連動
-2. 衣服和褲子圖片可以自行上網下載，放到程式碼中的ChangeClothes 的 載入所有衣服、褲子的資源（val clothingResources = 、val pantsResources = 的 arrayOf 裡）
-3. 記得加上自己的google-services.json，以連接自己的 Firebase 資料庫
+2. 衣服和褲子圖片可以自行上網下載，然後要進行去背景，可以使用以下網址https://www.photoroom.com/zh-tw/tools/background-remover 程式內已有寫好可以讓使用者自行進行圖片去背景的地方
+4. 去完背景的衣服和褲子圖片，放到程式碼中的ChangeClothes 的 載入所有衣服、褲子的資源（val clothingResources = 、val pantsResources = 的 arrayOf 裡）
+5. 記得加上自己的google-services.json，以連接自己的 Firebase 資料庫
 
 ## 畫面
 1. 初始介面
